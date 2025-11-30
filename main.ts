@@ -28,6 +28,7 @@ const joyState: JoyStateItem = {
     strength: 0,
     deg: 0
 }
+let lastPacked = -1
 
 basic.forever(() => {
     let x = pins.analogReadPin(AnalogPin.P2)
@@ -83,12 +84,20 @@ basic.forever(() => {
     }
     imageToShow.showImage(0, 0);
 
-    radio.sendNumber(packState(joyState, btnState))
+    let packed = packState(joyState, btnState)
+    if (packed != lastPacked) {
+        radio.sendNumber(packed)
+        lastPacked = packed
+    }
 
     basic.pause(20)
 })
 
-input.onLogoEvent(TouchButtonEvent.Pressed, () => {basic.showNumber(control.deviceSerialNumber())})
+input.onLogoEvent(TouchButtonEvent.Pressed, () => {
+    radio.sendValue("serial", control.deviceSerialNumber())
+    basic.showIcon(IconNames.Pitchfork)
+    basic.clearScreen()
+})
 
 function packState(joy: JoyStateItem, btns: Array<ButtonStateItem>): number {
     let buttonsMask = 0
