@@ -78,11 +78,22 @@ namespace mcbRCtx {
      * mcbRC.setGetImage(getImage)
      * ```
      */
-    //% block="set custom image handler $customImageFunction"
+    //% block="set custom image handler"
+    //% draggableParameters="reporter"
     //% weight=80
     //% advanced=true
     export function setGetImage(customImageFunction: (key: string) => Image): void {
         getImage = customImageFunction
+    }
+
+    /**
+     * Reset to default image mapping
+     */
+    //% block="use default image mapping"
+    //% weight=79
+    //% advanced=true
+    export function useDefaultImageMapping(): void {
+        getImage = defaultImageMapping
     }
 
     /**
@@ -328,15 +339,14 @@ namespace mcbRCtx {
         }
     })
 
-
     /**
-     * Default image mapping function - copy and modify this for custom images
-     * @param ch Character key for image selection
-     */
+ * Default image mapping function - copy and modify this for custom images
+ * @param ch Character key for image selection
+ */
     //% block="default image for key $ch"
     //% weight=78
     //% advanced=true 
-    export function defaultImageMapping(ch: string): Image {
+    function defaultImageMapping(ch: string): Image {
         if (ch.charAt(0) == "A") {
             return images.createImage(`
             . # # # .
