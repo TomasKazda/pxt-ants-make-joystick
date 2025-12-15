@@ -29,12 +29,12 @@ namespace mcbRCtx {
     let paired = false
     let isInitialized = false
     let serialRX = -1
-    let pinSrc: boolean //pin joystick vs gyro joystick
+    let pinSrc: boolean = false //pin joystick vs gyro joystick
     let xPin: AnalogPin = AnalogPin.P2
     let yPin: AnalogPin = AnalogPin.P1
     let center: CenterPoint = { x: 0, y: 0 }
     let MAX_RADIUS = 512
-    let getImage: (ch: string) => Image = defaultImageMapping;
+    let getImage: (ch: string) => Image = imageMapping.defaultImageMapping;
     let pinsMap: Array<PinMapItem> = []
     let btnState: Array<ButtonStateItem> = []
 
@@ -43,16 +43,6 @@ namespace mcbRCtx {
         strength: 0,
         deg: 0
     }
-
-    setPinsMap([
-        { key: "A", pin: DigitalPin.P5 },
-        { key: "B", pin: DigitalPin.P11 },
-        { key: "C", pin: DigitalPin.P15 },
-        { key: "D", pin: DigitalPin.P14 },
-        { key: "E", pin: DigitalPin.P13 },
-        { key: "F", pin: DigitalPin.P12 },
-        { key: "P", pin: DigitalPin.P8 }
-    ])
 
     /**
      * Set custom image mapping function for display feedback
@@ -149,6 +139,17 @@ namespace mcbRCtx {
                 x: pins.analogReadPin(xPin),
                 y: pins.analogReadPin(yPin)
             }
+            if (pinsMap.length === 1) {
+                setPinsMap([
+                    { key: "A", pin: DigitalPin.P5 },
+                    { key: "B", pin: DigitalPin.P11 },
+                    { key: "C", pin: DigitalPin.P15 },
+                    { key: "D", pin: DigitalPin.P14 },
+                    { key: "E", pin: DigitalPin.P13 },
+                    { key: "F", pin: DigitalPin.P12 },
+                    { key: "P", pin: DigitalPin.P8 }
+                ])
+            }
             MAX_RADIUS = 512
         } else {
             for (let i = 0; i < 10; i++)
@@ -160,6 +161,12 @@ namespace mcbRCtx {
             center = {
                 x: -input.acceleration(Dimension.X),
                 y: input.acceleration(Dimension.Y)
+            }
+            if (pinsMap.length === 0) {
+                setPinsMap([
+                    { key: "A", pin: DigitalPin.P5 },
+                    { key: "B", pin: DigitalPin.P11 }
+                ])
             }
             MAX_RADIUS = 1024
         }

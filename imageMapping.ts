@@ -1,4 +1,4 @@
-namespace mcbRCtx {
+namespace imageMapping {
     /**
     * Default image mapping function - copy and modify this for custom images
     * @param ch Character key for image selection
@@ -78,7 +78,7 @@ namespace mcbRCtx {
             return images.createImage(`
             . . . . .
             . . . . .
-            . # # # .
+            . . # . .
             . . . . .
             . . . . .
             `)
