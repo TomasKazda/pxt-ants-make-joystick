@@ -1,29 +1,5 @@
 //% color="#FF6B35" weight=100 icon="\uf11b"
 namespace mcbRCtx {
-    // Type definitions
-    //type ButtonKey = "A" | "B" | "C" | "D" | "E" | "F" | "P"
-
-    export type PinMapItem = {
-        key: string
-        pin: DigitalPin
-    }
-
-    type ButtonStateItem = {
-        key: string
-        value: boolean
-    }
-
-    type JoyStateItem = {
-        dirArrow: number,
-        strength: number,
-        deg: number
-    }
-
-    type CenterPoint = {
-        x: number
-        y: number
-    }
-
     // Variables
     let lastPacked = -1
     let paired = false
@@ -32,13 +8,13 @@ namespace mcbRCtx {
     let pinSrc: boolean = false //pin joystick vs gyro joystick
     let xPin: AnalogPin = AnalogPin.P2
     let yPin: AnalogPin = AnalogPin.P1
-    let center: CenterPoint = { x: 0, y: 0 }
+    let center: mcbRCTypes.CenterPoint = { x: 0, y: 0 }
     let MAX_RADIUS = 512
     let getImage: (ch: string) => Image = imageMapping.defaultImageMapping;
-    let pinsMap: Array<PinMapItem> = []
-    let btnState: Array<ButtonStateItem> = []
+    let pinsMap: Array<mcbRCTypes.PinMapItem> = []
+    let btnState: Array<mcbRCTypes.ButtonStateItem> = []
 
-    const joyState: JoyStateItem = {
+    const joyState: mcbRCTypes.JoyStateItem = {
         dirArrow: 0,
         strength: 0,
         deg: 0
@@ -65,12 +41,12 @@ namespace mcbRCtx {
     //% weight=75
     //% advanced=true
     //% blockHidden=true
-    export function setPinsMap(pinmap: PinMapItem[]): void {
+    export function setPinsMap(pinmap: mcbRCTypes.PinMapItem[]): void {
         pinsMap = pinmap;
 
         btnState = [{ key: "L", value: false }]
             .concat(pinmap.map(
-                (v, i) => ({ key: v.key, value: false } as ButtonStateItem)
+                (v, i) => ({ key: v.key, value: false } as mcbRCTypes.ButtonStateItem)
             ))
         if (paired) packButtonConfig(btnState)
     }
@@ -297,7 +273,7 @@ namespace mcbRCtx {
      * Format: [count: 1 byte][key1: 1 byte][key2: 1 byte]...[keyN: 1 byte]
      * Max 18 buttons (1 byte pro count + 18 bytes pro keys)
      */
-    function packButtonConfig(btnState: Array<ButtonStateItem>): Buffer {
+    function packButtonConfig(btnState: Array<mcbRCTypes.ButtonStateItem>): Buffer {
         const count = btnState.length
         const buffer = pins.createBuffer(count + 1)
 
@@ -310,7 +286,7 @@ namespace mcbRCtx {
         return buffer
     }
 
-    function packState(joy: JoyStateItem, btns: Array<ButtonStateItem>): number {
+    function packState(joy: mcbRCTypes.JoyStateItem, btns: Array<mcbRCTypes.ButtonStateItem>): number {
         let buttonsMask = 0
         for (let i = 0; i < btns.length; i++) {
             if (btns[i].value) {
