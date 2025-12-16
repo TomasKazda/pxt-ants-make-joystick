@@ -10,7 +10,7 @@ namespace mcbRCtx {
     let yPin: AnalogPin = AnalogPin.P1
     let center: mcbRCTypes.CenterPoint = { x: 0, y: 0 }
     let MAX_RADIUS = 512
-    let getImage: (ch: string) => Image = imageMapping.defaultImageMapping;
+    let getImage: (ch: string) => Image = null;
     let pinsMap: Array<mcbRCTypes.PinMapItem> = []
     let btnState: Array<mcbRCTypes.ButtonStateItem> = []
 
@@ -31,6 +31,13 @@ namespace mcbRCtx {
     //% blockHidden=true
     export function setGetImage(customImageFunction: (key: string) => Image): void {
         getImage = customImageFunction
+    }
+
+    function getImageSafe(key: string): Image {
+        if (!getImage) {
+            getImage = imageMapping.defaultImageMapping;
+        }
+        return getImage(key);
     }
 
     /**
@@ -233,9 +240,9 @@ namespace mcbRCtx {
             joyState.deg = deg < 0 ? (450 - (deg + 360)) % 360 : (450 - deg) % 360
 
             // Display feedback
-            let imageToShow: Image = getImage("-")
+            let imageToShow: Image = getImageSafe("-")
             if (joyState.strength > 5) {
-                imageToShow = getImage(joyState.dirArrow.toString())
+                imageToShow = getImageSafe(joyState.dirArrow.toString())
             } else {
                 joyState.dirArrow = 0
                 joyState.deg = 0
@@ -243,7 +250,7 @@ namespace mcbRCtx {
 
             for (let btn of btnState) {
                 if (btn.value) {
-                    imageToShow = getImage(btn.key)
+                    imageToShow = getImageSafe(btn.key)
                     break
                 }
             }

@@ -10,7 +10,7 @@ namespace mcbRCrx {
     let pairedSerialNo = -1
     let pairingMode = false
     let btnState: Array<mcbRCTypes.ButtonStateItem> = []
-    let getImage: (ch: string) => Image = imageMapping.defaultImageMapping;
+    let getImage: (ch: string) => Image = null;
     let onDataReceivedHandler: (joystick: mcbRCTypes.JoyStateItem, buttons: Array<mcbRCTypes.ButtonStateItem>, image: Image) => void = null;
 
     /**
@@ -141,6 +141,9 @@ namespace mcbRCrx {
     }
 
     function refreshDisplay(): Image {
+        if (!getImage) {
+            getImage = imageMapping.defaultImageMapping;
+        }
         let imageToShow: Image = getImage("-");
         if (joyState.strength > 5) {
             imageToShow = getImage(joyState.dirArrow.toString())
