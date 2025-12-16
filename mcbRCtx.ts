@@ -14,6 +14,9 @@ namespace mcbRCtx {
     let pinsMap: Array<mcbRCTypes.PinMapItem> = []
     let btnState: Array<mcbRCTypes.ButtonStateItem> = []
 
+    // Pre-allocated constants to avoid memory allocation in loop
+    const directionMap = [2, 1, 0, 7, 6, 5, 4, 3]
+
     const joyState: mcbRCTypes.JoyStateItem = {
         dirArrow: 0,
         strength: 0,
@@ -204,13 +207,26 @@ namespace mcbRCtx {
             }
 
             // Read button states
-            for (let btn of btnState) {
-                const mapping = pinsMap.find(v => v.key === btn.key)
-                if (mapping) {
-                    btn.value = pins.digitalReadPin(mapping.pin) === 0
+            for (let i = 0; i < btnState.length; i++) {
+                const btn = btnState[i]
+                if (i === 0) {
+                    // Logo button (always first)
+                    btn.value = input.logoIsPressed()
+                } else {
+                    // Find corresponding pin mapping without creating closure
+                    let found = false
+                    for (let j = 0; j < pinsMap.length; j++) {
+                        if (pinsMap[j].key === btn.key) {
+                            btn.value = pins.digitalReadPin(pinsMap[j].pin) === 0
+                            found = true
+                            break
+                        }
+                    }
+                    if (!found) {
+                        btn.value = false
+                    }
                 }
             }
-            btnState[0].value = input.logoIsPressed();
 
             // Calculate joystick direction and strength
             let dx = center.x - x
@@ -235,22 +251,25 @@ namespace mcbRCtx {
                     100
                 )
             )
-            joyState.dirArrow = [2, 1, 0, 7, 6, 5, 4, 3][dir]
+            joyState.dirArrow = directionMap[dir]
             let deg = Math.round(rad * 180 / Math.PI)
             joyState.deg = deg < 0 ? (450 - (deg + 360)) % 360 : (450 - deg) % 360
 
             // Display feedback
             let imageToShow: Image = getImageSafe("-")
             if (joyState.strength > 5) {
-                imageToShow = getImageSafe(joyState.dirArrow.toString())
+                // Use pre-calculated dirArrow (0-7) as string
+                const dirStr = joyState.dirArrow.toString()
+                imageToShow = getImageSafe(dirStr)
             } else {
                 joyState.dirArrow = 0
                 joyState.deg = 0
             }
 
-            for (let btn of btnState) {
-                if (btn.value) {
-                    imageToShow = getImageSafe(btn.key)
+            // Check buttons - exit on first pressed
+            for (let i = 0; i < btnState.length; i++) {
+                if (btnState[i].value) {
+                    imageToShow = getImageSafe(btnState[i].key)
                     break
                 }
             }
